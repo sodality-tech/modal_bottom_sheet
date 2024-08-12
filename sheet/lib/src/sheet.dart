@@ -82,6 +82,7 @@ class Sheet extends StatelessWidget {
     this.resizable = false,
     this.padding = EdgeInsets.zero,
     this.minResizableExtent,
+    this.fixedHeight,
   }) : decorationBuilder = null;
 
   /// Creates a bottom sheet with no default appearance.
@@ -99,11 +100,14 @@ class Sheet extends StatelessWidget {
     this.resizable = false,
     this.padding = EdgeInsets.zero,
     this.minResizableExtent,
+    this.fixedHeight,
   })  : decorationBuilder = decorationBuilder ?? _emptyDecorationBuilder,
         shape = null,
         elevation = null,
         backgroundColor = null,
         clipBehavior = null;
+
+  final double? fixedHeight;
 
   final Widget child;
 
@@ -269,6 +273,7 @@ class Sheet extends StatelessWidget {
               offset: offset,
               minExtent: minExtent,
               maxExtent: maxExtent,
+              fixedHeight: fixedHeight,
               fit: fit,
               resizeable: resizable,
               child: Padding(
@@ -543,6 +548,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
     super.child,
     required this.fit,
     required this.clipBehavior,
+    this.fixedHeight,
   });
 
   final AxisDirection axisDirection;
@@ -552,6 +558,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
   final double? maxExtent;
   final SheetFit fit;
   final bool resizeable;
+  final double? fixedHeight;
 
   @override
   RenderSheetViewport createRenderObject(BuildContext context) {
@@ -562,6 +569,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
       minExtent: minExtent,
       maxExtent: maxExtent,
       resizeable: resizeable,
+      fixedHeight: fixedHeight,
       fit: fit,
     );
   }
@@ -576,6 +584,7 @@ class SheetViewport extends SingleChildRenderObjectWidget {
       ..clipBehavior = clipBehavior
       ..minExtent = minExtent
       ..maxExtent = maxExtent
+      .._fixedHeight = fixedHeight
       ..fit = fit;
   }
 }
@@ -593,6 +602,7 @@ class RenderSheetViewport extends RenderBox
     double? minExtent,
     double? maxExtent,
     bool? resizeable,
+    double? fixedHeight,
   })  : _axisDirection = axisDirection,
         _offset = offset,
         _fit = fit,
@@ -600,9 +610,12 @@ class RenderSheetViewport extends RenderBox
         _maxExtent = maxExtent,
         _cacheExtent = cacheExtent,
         _resizeable = resizeable ?? false,
-        _clipBehavior = clipBehavior {
+        _clipBehavior = clipBehavior,
+        _fixedHeight = fixedHeight {
     this.child = child;
   }
+
+  double? _fixedHeight;
 
   AxisDirection get axisDirection => _axisDirection;
   AxisDirection _axisDirection;
@@ -815,8 +828,8 @@ class RenderSheetViewport extends RenderBox
       }
 
       final BoxConstraints childConstraints = BoxConstraints(
-        minHeight: minHeight,
-        maxHeight: maxHeight,
+        minHeight: _fixedHeight ?? minHeight,
+        maxHeight: _fixedHeight ?? maxHeight,
         minWidth: constraints.minWidth,
         maxWidth: constraints.maxWidth,
       );
